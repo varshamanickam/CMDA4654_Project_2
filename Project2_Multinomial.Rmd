@@ -1,0 +1,63 @@
+---
+title: "Multinomial Regression"
+author: "Chris Ryan, Jeb Brown, Varsha Manickam, Meghna Kommoju, Zhennan Shen"
+date: "2023-04-18"
+fontsize: 9pt
+classoption: "aspectratio=169"
+output: 
+  beamer_presentation: 
+    fonttheme: professionalfonts
+    highlight: kate
+    theme: Rochester
+header-includes:
+- \definecolor{VTmaroon}{HTML}{861F41}
+- \usecolortheme[named=VTmaroon]{structure}
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(echo = FALSE,
+                      comment = NA)
+
+def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+knitr::knit_hooks$set(chunk = function(x, options) {
+  x <- def.chunk.hook(x, options)
+  paste0("\n \\", "footnotesize","\n\n", x, "\n\n \\normalsize")
+})
+
+
+```
+
+## Multinomial Regression
+
+Multinomial Regression (also called Multinomial Logistic Regression) is a classification method that is used to predict nominal outcome variables that have more than two outcomes (polytomous) that do not have a rank or order.
+Examples of this would be:
+
+- Classifying flower species (setosa, virginica, veritosa)
+- Classifying student programs (academic, vocation, general)
+- Classifying student majors (engineering, business, science)
+
+## Assumptions for Multinomial Regression
+
+- Independence of observations
+- Categories of the outcome variable must be mutually exclusive and exhaustive
+- No multicollinearity between independent variables
+- Linear relationship between continuous variables and the logit transformation of the outcome variable
+
+## Slide with R Output
+
+```{r cars, echo = TRUE}
+summary(cars)
+```
+
+Do you see the above `##`?  I hate those, you need to figure out how to remove those.
+
+
+## Slide with Plot
+
+
+```{r pressure}
+plot(pressure)
+```
+
+
