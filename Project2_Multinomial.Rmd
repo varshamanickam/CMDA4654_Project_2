@@ -44,20 +44,50 @@ Examples of this would be:
 - No multicollinearity between independent variables
 - Linear relationship between continuous variables and the logit transformation of the outcome variable
 
-## Slide with R Output
+## Theory
 
-```{r cars, echo = TRUE}
-summary(cars)
+
+## Small example
+
+## Main example
+
+```{r}
+library(nnet)
+library(caret)
+library(readr)
+library(dplyr)
+
+data <- read_csv("steel_faults.csv")
+
+# We need to combine the various fault columns into one column, and get rid of the separate columns
+data <- data %>%
+  mutate(Fault_Type = case_when(
+    Pastry == 1 ~ "Pastry",
+    Z_Scratch == 1 ~ "Z_Scratch",
+    K_Scatch == 1 ~ "K_Scatch",
+    Stains == 1 ~ "Stains",
+    Dirtiness == 1 ~ "Dirtiness",
+    Bumps == 1 ~ "Bumps",
+    Other_Faults == 1 ~ "Other"
+  )) %>%
+  select(-Pastry, -Z_Scratch, -K_Scatch, -Stains, -Dirtiness, -Bumps, -Other_Faults)
+
+# We need to convert the targets to factors since we are dealing with categories
+data$Fault_Type <- as.factor(data$Fault_Type)
+
+# Fitting the multinomial model to the data
+model <- multinom(Fault_Type ~ ., data = data)
+
+# Find predicted values that the model suggests
+predicted <- predict(model, newdata = data)
+
 ```
 
-Do you see the above `##`?  I hate those, you need to figure out how to remove those.
+## Confusion Matrix and Interpretations
 
-
-## Slide with Plot
-
-
-```{r pressure}
-plot(pressure)
+```{r}
+# Confusion matrix
+cm <- confusionMatrix(predicted, data$Fault_Type)
+cm$table
 ```
-
 
