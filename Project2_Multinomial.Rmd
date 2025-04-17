@@ -39,12 +39,39 @@ Examples of this would be:
 
 ## Assumptions for Multinomial Regression
 
-- Independence of observations
-- Categories of the outcome variable must be mutually exclusive and exhaustive
-- No multicollinearity between independent variables
-- Linear relationship between continuous variables and the logit transformation of the outcome variable
+-   Independence of observations
+-   Categories of the outcome variable must be mutually exclusive and exhaustive
+-   No multicollinearity between independent variables
+-   Linear relationship between continuous variables and the logit transformation of the outcome variable
 
-## Theory
+## Multinomial Regression Basics
+
+-   An extension of Logistic Regression
+-   Uses separate Logistic Regression models for each pair of response categories
+-   Say there are K Response categories. We choose 1 base or "reference" level and then create K-1 difference Logistic Regression Models comparing
+-   Each of these models will model the log-odds that an observation that an observation is in a given category vs the reference category
+- The reference category can be any of the categories mathematically and you will get the same results. But it can strategically be picked for better interpretability.
+
+## Multinomial Regression Interpretation
+
+- A Multinomial Regression model with K response categories and P explanatory variables is a collection of K-1 Logistic Regression Models:
+  - $log(\pi_2/\pi_1) = \beta_{2,0} + \beta_{2,1}*X_1 + ... + \beta_{2,p}*X_p = X^T\beta_2$
+  - $log(\pi_3/\pi_1) = \beta_{3,0} + \beta_{3,1}*X_1 + ... + \beta_{3,p}*X_p = X^T\beta_3$
+  - ...
+  - $log(\pi_K/\pi_1) = \beta_{K,0} + \beta_{K,1}*X_1 + ... + \beta_{K,p}*X_p = X^T\beta_K$
+- Where $\pi_i$ is the probability that a given observation is in category i and category 1 is our reference category.
+- The odds that a given observation is in category i vs category 1 is given by $exp(\beta_{2,0} + \beta_{2,1}*X_1 + ... + \beta_{2,p}*X_p)$.
+- Since $\sum_{j=1}^{K}\pi_j = 1$, $\pi_i = \pi_i/(\sum_{j=1}^{K}\pi_j) = (\pi_i/\pi_1)/(\sum_{j=1}^{K}\pi_j/\pi_1) = exp(X^T\beta_i)/(1+\sum_{j=2}^{K}exp(X^T\beta_j))$.
+- Or if i = 1, $\pi_i = (\pi_1/\pi_1)/(1+\sum_{j=2}^{K}exp(X^T\beta_j)) = 1/(1+\sum_{j=2}^{K}exp(X^T\beta_j))$
+
+## Interpretation of Parameter Estimates
+
+- Let $\beta_{i,j}$ be the parameter corresponding the the coefficient of $X_j$ in the ith logistic regression model.
+- a unit increase in $X_j$ results in a total increase in the log-odds by $\beta_{i,j}$. (If all other explanatory variables are kept constant)
+- Similar to Logistic Regression, it is easier to interpret odds than log odds.
+- For a unit increase in $X_j$, the odds that a given observation is category i vs our reference category changes by a factor of $exp(\beta_{i,j})$.
+
+
 
 
 ## Small example
