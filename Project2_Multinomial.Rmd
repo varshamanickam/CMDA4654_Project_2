@@ -149,11 +149,21 @@ table(steel_faults$Fault_Type)
 ```
 We have a total of 1940 observations of steel plate faults in our dataset.
 
-
-
-## Building the model
-
+## Finding Which Predictors to Use
 ```{r}
+# Predictor variable correlation matrix
+correlations <- cor(steel_faults %>% select_if(is.numeric))
+
+# Predictor variable correlation plot
+library(corrplot)
+corrplot(correlations, method = "circle")
+
+```
+
+
+## Building the full model
+
+```{r, results='hide'}
 # Fitting the multinomial model to the data
 model <- multinom(Fault_Type ~ ., data = steel_faults)
 
@@ -170,4 +180,6 @@ summary(model)
 # Confusion matrix
 cm <- confusionMatrix(predicted, steel_faults$Fault_Type)
 cm$table
+
+cm$byClass
 ```
