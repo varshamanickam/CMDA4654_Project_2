@@ -17,7 +17,9 @@ header-includes:
 ```{r setup, include=FALSE}
 library(knitr)
 knitr::opts_chunk$set(echo = FALSE,
-                      comment = NA)
+                      comment = NA,
+                      warning = FALSE,
+                      message = FALSE)
 
 def.chunk.hook  <- knitr::knit_hooks$get("chunk")
 knitr::knit_hooks$set(chunk = function(x, options) {
@@ -76,45 +78,88 @@ Examples of this would be:
 
 ## Small example
 
-## Main example
+## Multiomial Regression in R
+```{r}
+ # Loading necessary libraries and the dataset
+ library(nnet)
+ library(caret)
+ library(readr)
+ library(dplyr)
+ 
+ steel_faults <- read_csv("steel_faults.csv")
+ 
+ # We need to combine the various fault columns into one column, and get rid of the separate columns
+ steel_faults <- steel_faults %>%
+   mutate(Fault_Type = case_when(
+     Pastry == 1 ~ "Pastry",
+     Z_Scratch == 1 ~ "Z_Scratch",
+     K_Scatch == 1 ~ "K_Scatch",
+     Stains == 1 ~ "Stains",
+     Dirtiness == 1 ~ "Dirtiness",
+     Bumps == 1 ~ "Bumps",
+     Other_Faults == 1 ~ "Other"
+   )) %>%
+   select(-Pastry, -Z_Scratch, -K_Scatch, -Stains, -Dirtiness, -Bumps, -Other_Faults)
+ 
+ 
+ # We need to convert the targets to factors since we are dealing with categories
+ steel_faults$Fault_Type <- as.factor(steel_faults$Fault_Type)
+ 
+```
+ The data we are using for our main example is a dataset that contains various physical and visual measurements of steel plates. These measurements are then used to classify the fault that has occurred in the manufacturing of each plate. 
+ 
+ The types of faults that we will be classifying are:
+ 
+ - Pastry
+ - Z Scratch
+ - K Scratch
+ - Stains
+ - Dirtiness
+ - Bumps
+ - Other Faults
+ 
+ The data was found at https://archive.ics.uci.edu/dataset/198/steel+plates+faults. In our example our goal will to be to build a multinomial regression model that can accurately classify the types of faults that the plates in the dataset have.
+ 
+## Descriptive Statistics
+ 
+Our dataset contains 27 different predictor variables that describe the features of the fault such as size, placement, and luminosity of the faults, and other information such as the type and thickness of the steel that the plate is made of.
+
+Here we can see the distribution of the types of faults in our dataset. 
+```{r}
+ table(steel_faults$Fault_Type)
+```
+We have a total of 1940 observations of steel plate faults in our dataset.
+ 
+## Finding Which Predictors to Use
 
 ```{r}
-library(nnet)
-library(caret)
-library(readr)
-library(dplyr)
+# Predictor variable correlation matrix
+correlations <- cor(steel_faults %>% select_if(is.numeric))
+ 
+# Predictor variable correlation plot
+library(corrplot)
+corrplot(correlations, method = "circle")
+```
 
-data <- read_csv("steel_faults.csv")
-
-# We need to combine the various fault columns into one column, and get rid of the separate columns
-data <- data %>%
-  mutate(Fault_Type = case_when(
-    Pastry == 1 ~ "Pastry",
-    Z_Scratch == 1 ~ "Z_Scratch",
-    K_Scatch == 1 ~ "K_Scatch",
-    Stains == 1 ~ "Stains",
-    Dirtiness == 1 ~ "Dirtiness",
-    Bumps == 1 ~ "Bumps",
-    Other_Faults == 1 ~ "Other"
-  )) %>%
-  select(-Pastry, -Z_Scratch, -K_Scatch, -Stains, -Dirtiness, -Bumps, -Other_Faults)
-
-# We need to convert the targets to factors since we are dealing with categories
-data$Fault_Type <- as.factor(data$Fault_Type)
-
+## Building the full model
+ 
+```{r, results='hide'}
 # Fitting the multinomial model to the data
-model <- multinom(Fault_Type ~ ., data = data)
-
+model <- multinom(Fault_Type ~ ., data = steel_faults)
+ 
 # Find predicted values that the model suggests
-predicted <- predict(model, newdata = data)
-
+predicted <- predict(model, newdata = steel_faults)
+ 
+summary(model)
 ```
 
 ## Confusion Matrix and Interpretations
-
 ```{r}
 # Confusion matrix
-cm <- confusionMatrix(predicted, data$Fault_Type)
+cm <- confusionMatrix(predicted, steel_faults$Fault_Type)
 cm$table
+
+ 
+cm$byClass
 ```
 
