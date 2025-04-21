@@ -197,7 +197,7 @@ The data was found at https://archive.ics.uci.edu/dataset/198/steel+plates+fault
 Our dataset contains 27 different predictor variables that describe the features of the fault such as size, placement, and luminosity of the faults, and other information such as the type and thickness of the steel that the plate is made of.
 
 Here we can see the distribution of the types of faults in our dataset. 
-```{r eval=FALSE, include=FALSE}
+```{r}
 table(steel_faults$Fault_Type)
 ```
 We have a total of 1940 observations of steel plate faults in our dataset.
@@ -211,7 +211,7 @@ library(nnet)
 ```
 
  
-```{r eval=FALSE, include=FALSE}
+```{r, echo=TRUE}
 
 # Fitting the multinomial model to the data
 full_model <- multinom(Fault_Type ~ ., data = steel_faults)
@@ -224,7 +224,7 @@ full_model_summary$AIC
 ```
 
 ## Confusion Matrix and Interpretations
-```{r eval=FALSE, include=FALSE}
+```{r}
 # Find predicted values that the model suggests
 predicted_full_model <- predict(full_model, newdata = steel_faults)
 
@@ -236,14 +236,14 @@ cm$table
 
 
 ## Confusion Matrix and Interpretations (cont.)
-```{r eval=FALSE, include=FALSE}
+```{r}
 cm$byClass
 ```
 
 
 ## Finding Which Predictors to Use
 
-```{r eval=FALSE, include=FALSE}
+```{r}
 # Predictor variable correlation matrix
 correlations <- cor(steel_faults %>% select_if(is.numeric))
  
@@ -265,7 +265,7 @@ In the stepwise summary, we are able to see that the model with the lowest AIC i
 
 
 ## Creating Refined Model Using AIC Comparisons
-```{r eval=FALSE, include=FALSE, results='hide'}
+```{r, results='hide', echo=TRUE}
 # Fitting the refined multinomial model
 refined_model <- multinom(formula = Fault_Type ~ X_Minimum + Y_Minimum + Y_Maximum + 
     Minimum_of_Luminosity + Maximum_of_Luminosity + Length_of_Conveyer + 
@@ -284,7 +284,7 @@ refined_model_summary$AIC
 ```
 
 ## Updated Confusion Matrix and Interpretations
-```{r eval=FALSE, include=FALSE}
+```{r}
 # Find predicted values that the model suggests
 predicted_refined_model <- predict(refined_model, newdata = steel_faults)
 
@@ -294,7 +294,7 @@ cm_refined$table
 ```
 
 ## Updated Confusion Matrix and Interpretations (cont.)
-```{r eval=FALSE, include=FALSE}
+```{r}
 cm_refined$byClass
 ```
 
