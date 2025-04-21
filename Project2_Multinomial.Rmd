@@ -105,6 +105,7 @@ Lets say we update each $\beta_i$ to $\beta_i + \beta^*$ for some constant vecto
 - For a unit increase in $X_j$, the odds that a given observation is category i vs our reference category changes by a factor of $exp(\beta_{i,j})$.
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 ## Why Significance Test in Multinomial Regression?
 
 - Helps determine which predictors are statistically meaningful.
@@ -144,6 +145,12 @@ lrt_result
 
 Like ordinary logistic regression, in order to estimate the parameters, $\beta$, we have to calculate the maximum likelihood estimation.
 
+=======
+## Parameter Estimation
+
+Like ordinary logistic regression, in order to estimate the parameters, $\beta$, we have to calculate the maximum likelihood estimation.
+
+>>>>>>> Stashed changes
 For starters, our likelihood function is given by, $L(\beta|X) = \prod_{i=1}^{n}\prod_{c=1}^{K}P(y_i=c|x_i,\beta)^{1\{y_i=c\}}$. Where $1\{\}$ is the indicator function, which returns 1 if the statement inside the brackets is true and 0 if the statement inside the brackets is false. Of course, it is typically easier to differentiate a sum rather than a product so we look at the log-likelihood function instead given by, $\ell(\beta|X) = \sum_{i=1}^n\sum_{c=1}^K1\{y_i=c\}log(P(y_i=c|x_i,\beta) = \sum_{i=1}^n\sum_{c=1}^K1\{y_i=c\}(x_i^T\beta_c - log(\sum_{j=1}^Kexp(x_i^T\beta_j)$.
 
 ##
@@ -158,6 +165,9 @@ Therefore we need to use a generalization of newtons method in order to find the
 ## Main example
 
 ```{r eval=FALSE, include=FALSE}
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 library(nnet)
 library(caret)
@@ -231,10 +241,15 @@ full_model_summary$AIC
 
 ## Confusion Matrix and Interpretations
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 ```{r}
 # Find predicted values that the model suggests
 predicted_full_model <- predict(full_model, newdata = steel_faults)
 
+=======
+
+```{r eval=FALSE, include=FALSE}
+>>>>>>> Stashed changes
 =======
 
 ```{r eval=FALSE, include=FALSE}
