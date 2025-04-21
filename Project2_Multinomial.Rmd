@@ -97,6 +97,19 @@ Examples of this would be:
 - **Alternative hypothesis**: The full model fits significantly better than the reduced model.
 - A small *p*-value → removed predictors are important.
 
+## LRT Example on `iris` Dataset
+
+```{r, message=FALSE, warning=FALSE}
+library(nnet)
+full_model <- multinom(Species ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width, data = iris)
+reduced_model <- multinom(Species ~ Petal.Length + Petal.Width, data = iris)
+
+lrt_result <- anova(reduced_model, full_model, test = "Chisq")
+lrt_result
+```
+- LR stat = 8.68, df = 4, p-value = 0.0696
+- p > 0.05 → not statistically significant
+- Sepal predictors may not be needed, reduced model performs nearly as well
 
 ## Small example
 
