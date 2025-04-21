@@ -82,7 +82,20 @@ Examples of this would be:
 - Similar to Logistic Regression, it is easier to interpret odds than log odds.
 - For a unit increase in $X_j$, the odds that a given observation is category i vs our reference category changes by a factor of $exp(\beta_{i,j})$.
 
+## Why Significance Test in Multinomial Regression?
 
+- Helps determine which predictors are statistically meaningful.
+- Prevents overfitting by identifying unhelpful variables.
+- **Wald Test**: Used to test individual predictor coefficients.
+  - But: Wald tests can be unstable, especially with small samples or multicollinearity.
+- **Likelihood Ratio Test (LRT)** is often more reliable.
+
+## Likelihood Ratio Test
+
+- Compares a full model (with all predictors) to a reduced model (with some predictors removed).
+- **Null hypothesis**: The reduced model fits the data just as well as the full model.
+- **Alternative hypothesis**: The full model fits significantly better than the reduced model.
+- A small *p*-value → removed predictors are important.
 
 
 ## Small example
