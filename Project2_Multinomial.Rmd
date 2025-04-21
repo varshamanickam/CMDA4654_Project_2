@@ -96,7 +96,6 @@ Now if we define another vector, $\beta_K$, equal to the zero vector, it is easy
 
 Lets say we update each $\beta_i$ to $\beta_i + \beta^*$ for some constant vector $\beta^*$. Let $pi_i^*$ be the updated probability that an observation is in category i given the updated parameters. Observe that, $\pi_i^* = exp(X^T(\beta_i + \beta^*))/(\sum_{j=1}^{K}exp(X^T(\beta_j + \beta^*))) = exp(X^T\beta_i)exp(X^T\beta^*)/(\sum_{j=1}^{K}exp(X^T\beta_j)exp(X^T\beta^*)) = exp(X^T\beta_i)/(\sum_{j=1}^{K}exp(X^T\beta_j)) = \pi_i$. Therefore, as we can see, the probabilities are not uniquely defined by the set of parameters and in fact, for any model if you add another vector to each of the parameter vectors, you will achieve the same results. This is why we choose a reference category and set it's parameter vector to the zero vector which in turn restricts our solution space.
 
-
 ## Interpretation of Parameter Estimates
 
 - Let $\beta_{i,j}$ be the parameter corresponding the the coefficient of $X_j$ in the ith logistic regression model.
@@ -104,7 +103,19 @@ Lets say we update each $\beta_i$ to $\beta_i + \beta^*$ for some constant vecto
 - Similar to Logistic Regression, it is easier to interpret odds than log odds.
 - For a unit increase in $X_j$, the odds that a given observation is category i vs our reference category changes by a factor of $exp(\beta_{i,j})$.
 
-<<<<<<< Updated upstream
+## Parameter Estimation
+
+Like ordinary logistic regression, in order to estimate the parameters, $\beta$, we have to calculate the maximum likelihood estimation.
+
+For starters, our likelihood function is given by, $L(\beta|X) = \prod_{i=1}^{n}\prod_{c=1}^{K}P(y_i=c|x_i,\beta)^{1\{y_i=c\}}$. Where $1\{\}$ is the indicator function, which returns 1 if the statement inside the brackets is true and 0 if the statement inside the brackets is false. Of course, it is typically easier to differentiate a sum rather than a product so we look at the log-likelihood function instead given by, $\ell(\beta|X) = \sum_{i=1}^n\sum_{c=1}^K1\{y_i=c\}log(P(y_i=c|x_i,\beta) = \sum_{i=1}^n\sum_{c=1}^K1\{y_i=c\}(x_i^T\beta_c - log(\sum_{j=1}^Kexp(x_i^T\beta_j)$.
+
+##
+
+Now, finding the maximum likelihood estimation is equivalent to finding when each $\nabla_{\beta_i}\ell(\beta|X)$ is equal to the zero vector. It can be shown that 
+$\nabla_{\beta_i}\ell(\beta|X) = X^T \begin{bmatrix}1\{y_1=m\}-P(y_1=m|x_1,\beta) \\ ... \\ 1\{y_n=m\}-P(y_n=m|x_n,\beta)\end{bmatrix}$ which, like ordinary simple regression, has no closed form when set equal to 0.
+
+Therefore we need to use a generalization of newtons method in order to find the minimum of $\nabla_{\beta_i}\ell(\beta|X)$, using the following update formula: $\beta_m^{(r)} = \beta_m^{(r-1)} - (H_m^{(r-1)})^{-1}X^T\begin{bmatrix}1\{y_1=m\}-P(y_1=m|x_1,\beta^{(r-1)}) \\ ... \\ 1\{y_n=m\}-P(y_n=m|x_n,\beta^{(r-1)})\end{bmatrix}$ Where $H_m^{(r-1)}$ is the Hessian of $\nabla_{\beta_m}\ell(\beta^{(r-1)}|X)$ and can be explicitly defined as $-X^TW_m^{(r-1)}X$ where $W_m$ is an n by n matrix with the ith diagonal entry being $P(y_i = m|x_i,\beta^{(r-1)})(1 - P(y_i = m|x_i,\beta^{(r-1)}))$
+
 ## Why Significance Test in Multinomial Regression?
 
 - Helps determine which predictors are statistically meaningful.
@@ -136,29 +147,12 @@ lrt_result
 
 ## Small example
 
-## Multiomial Regression in R
-```{r}
-# Loading necessary libraries and the dataset
-=======
-## Parameter Estimation
-
-Like ordinary logistic regression, in order to estimate the parameters, $\beta$, we have to calculate the maximum likelihood estimation.
-
-For starters, our likelihood function is given by, $L(\beta|X) = \prod_{i=1}^{n}\prod_{c=1}^{K}P(y_i=c|x_i,\beta)^{1\{y_i=c\}}$. Where $1\{\}$ is the indicator function, which returns 1 if the statement inside the brackets is true and 0 if the statement inside the brackets is false. Of course, it is typically easier to differentiate a sum rather than a product so we look at the log-likelihood function instead given by, $\ell(\beta|X) = \sum_{i=1}^n\sum_{c=1}^K1\{y_i=c\}log(P(y_i=c|x_i,\beta) = \sum_{i=1}^n\sum_{c=1}^K1\{y_i=c\}(x_i^T\beta_c - log(\sum_{j=1}^Kexp(x_i^T\beta_j)$.
-
-##
-
-Now, finding the maximum likelihood estimation is equivalent to finding when each $\nabla_{\beta_i}\ell(\beta|X)$ is equal to the zero vector. It can be shown that 
-$\nabla_{\beta_i}\ell(\beta|X) = X^T \begin{bmatrix}1\{y_1=m\}-P(y_1=m|x_1,\beta) \\ ... \\ 1\{y_n=m\}-P(y_n=m|x_n,\beta)\end{bmatrix}$ which, like ordinary simple regression, has no closed form when set equal to 0.
-
-Therefore we need to use a generalization of newtons method in order to find the minimum of $\nabla_{\beta_i}\ell(\beta|X)$, using the following update formula: $\beta_m^{(r)} = \beta_m^{(r-1)} - (H_m^{(r-1)})^{-1}X^T\begin{bmatrix}1\{y_1=m\}-P(y_1=m|x_1,\beta^{(r-1)}) \\ ... \\ 1\{y_n=m\}-P(y_n=m|x_n,\beta^{(r-1)})\end{bmatrix}$ Where $H_m^{(r-1)}$ is the Hessian of $\nabla_{\beta_m}\ell(\beta^{(r-1)}|X)$ and can be explicitly defined as $-X^TW_m^{(r-1)}X$ where $W_m$ is an n by n matrix with the ith diagonal entry being $P(y_i = m|x_i,\beta^{(r-1)})(1 - P(y_i = m|x_i,\beta^{(r-1)}))$
-
-## Small example
-
 ## Main example
 
+## Multiomial Regression in R
 ```{r eval=FALSE, include=FALSE}
->>>>>>> Stashed changes
+
+# Loading necessary libraries and the dataset
 library(nnet)
 library(caret)
 library(readr)
@@ -203,7 +197,7 @@ The data was found at https://archive.ics.uci.edu/dataset/198/steel+plates+fault
 Our dataset contains 27 different predictor variables that describe the features of the fault such as size, placement, and luminosity of the faults, and other information such as the type and thickness of the steel that the plate is made of.
 
 Here we can see the distribution of the types of faults in our dataset. 
-```{r}
+```{r eval=FALSE, include=FALSE}
 table(steel_faults$Fault_Type)
 ```
 We have a total of 1940 observations of steel plate faults in our dataset.
@@ -217,7 +211,7 @@ library(nnet)
 ```
 
  
-```{r, echo=TRUE}
+```{r eval=FALSE, include=FALSE}
 
 # Fitting the multinomial model to the data
 full_model <- multinom(Fault_Type ~ ., data = steel_faults)
@@ -230,15 +224,10 @@ full_model_summary$AIC
 ```
 
 ## Confusion Matrix and Interpretations
-<<<<<<< Updated upstream
-```{r}
+```{r eval=FALSE, include=FALSE}
 # Find predicted values that the model suggests
 predicted_full_model <- predict(full_model, newdata = steel_faults)
 
-=======
-
-```{r eval=FALSE, include=FALSE}
->>>>>>> Stashed changes
 # Confusion matrix
 cm <- confusionMatrix(predicted_full_model, steel_faults$Fault_Type)
 cm$overall
@@ -247,14 +236,14 @@ cm$table
 
 
 ## Confusion Matrix and Interpretations (cont.)
-```{r}
+```{r eval=FALSE, include=FALSE}
 cm$byClass
 ```
 
 
 ## Finding Which Predictors to Use
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 # Predictor variable correlation matrix
 correlations <- cor(steel_faults %>% select_if(is.numeric))
  
@@ -276,7 +265,7 @@ In the stepwise summary, we are able to see that the model with the lowest AIC i
 
 
 ## Creating Refined Model Using AIC Comparisons
-```{r, results='hide', echo=TRUE}
+```{r eval=FALSE, include=FALSE, results='hide'}
 # Fitting the refined multinomial model
 refined_model <- multinom(formula = Fault_Type ~ X_Minimum + Y_Minimum + Y_Maximum + 
     Minimum_of_Luminosity + Maximum_of_Luminosity + Length_of_Conveyer + 
@@ -295,7 +284,7 @@ refined_model_summary$AIC
 ```
 
 ## Updated Confusion Matrix and Interpretations
-```{r}
+```{r eval=FALSE, include=FALSE}
 # Find predicted values that the model suggests
 predicted_refined_model <- predict(refined_model, newdata = steel_faults)
 
@@ -305,7 +294,7 @@ cm_refined$table
 ```
 
 ## Updated Confusion Matrix and Interpretations (cont.)
-```{r}
+```{r eval=FALSE, include=FALSE}
 cm_refined$byClass
 ```
 
