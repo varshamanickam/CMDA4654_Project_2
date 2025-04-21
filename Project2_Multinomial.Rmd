@@ -29,6 +29,15 @@ knitr::knit_hooks$set(chunk = function(x, options) {
 
 
 ```
+## Introduction
+
+> "All models are wrong, but some are useful."  
+> — George E. P. Box
+
+- In manufacturing, it’s important to find problems early to keep products high quality.
+- We are using **Multinomial Logistic Regression** to predict **types of faults** in steel plates using data from the production process.
+- The outcome has **more than two categories** with no specific order, which fits this model well.
+- Our goal is to build a model that predicts fault types, explains which features matter most, and checks that the model works correctly.
 
 ## Multinomial Regression
 
