@@ -41,8 +41,7 @@ knitr::knit_hooks$set(chunk = function(x, options) {
 
 ## Multinomial Regression
 
-Multinomial Regression (also called Multinomial Logistic Regression) is a classification method that is used to predict nominal outcome variables that have more than two outcomes (polytomous) that do not have a rank or order.
-Examples of this would be:
+Multinomial Regression (also called Multinomial Logistic Regression or Softmax Regression) is a classification method that is used to predict nominal outcome variables that have more than two outcomes (polytomous) that do not have a rank or order. Examples of this would be:
 
 - Classifying flower species (setosa, virginica, veritosa)
 - Classifying student programs (academic, vocation, general)
@@ -57,6 +56,8 @@ Examples of this would be:
 
 ## Multinomial Regression Basics
 
+Multinomial Regression on a response variable with K categories and P explanatory variables is comprised of K-1 deperate Simple Logistic Regressions modeling the relationship between the log-odds of each category vs one base or "reference" category. 
+
 -   An extension of Logistic Regression
 -   Uses separate Logistic Regression models for each pair of response categories
 -   Say there are K Response categories. We choose 1 base or "reference" level and then create K-1 difference Logistic Regression Models comparing
@@ -65,15 +66,36 @@ Examples of this would be:
 
 ## Multinomial Regression Interpretation
 
-- A Multinomial Regression model with K response categories and P explanatory variables is a collection of K-1 Logistic Regression Models:
-  - $log(\pi_2/\pi_1) = \beta_{2,0} + \beta_{2,1}*X_1 + ... + \beta_{2,p}*X_p = X^T\beta_2$
-  - $log(\pi_3/\pi_1) = \beta_{3,0} + \beta_{3,1}*X_1 + ... + \beta_{3,p}*X_p = X^T\beta_3$
-  - ...
-  - $log(\pi_K/\pi_1) = \beta_{K,0} + \beta_{K,1}*X_1 + ... + \beta_{K,p}*X_p = X^T\beta_K$
-- Where $\pi_i$ is the probability that a given observation is in category i and category 1 is our reference category.
-- The odds that a given observation is in category i vs category 1 is given by $exp(\beta_{2,0} + \beta_{2,1}*X_1 + ... + \beta_{2,p}*X_p)$.
-- Since $\sum_{j=1}^{K}\pi_j = 1$, $\pi_i = \pi_i/(\sum_{j=1}^{K}\pi_j) = (\pi_i/\pi_1)/(\sum_{j=1}^{K}\pi_j/\pi_1) = exp(X^T\beta_i)/(1+\sum_{j=2}^{K}exp(X^T\beta_j))$.
-- Or if i = 1, $\pi_i = (\pi_1/\pi_1)/(1+\sum_{j=2}^{K}exp(X^T\beta_j)) = 1/(1+\sum_{j=2}^{K}exp(X^T\beta_j))$
+A Multinomial Regression model with K response categories and P explanatory variables is a collection of K-1 Logistic Regression Models:
+$\begin{cases}$
+$log(\pi_1/\pi_K) = \beta_{1,0} + \beta_{1,1}*X_1 + ... + \beta_{1,p}*X_p = X^T\beta_1 \\$
+$log(\pi_2/\pi_K) = \beta_{2,0} + \beta_{2,1}*X_1 + ... + \beta_{2,p}*X_p = X^T\beta_2 \\$
+$... \\$
+$log(\pi_{K-1}/\pi_K) = \beta_{K-1,0} + \beta_{K-1,1}*X_1 + ... + \beta_{K-1,p}*X_p = X^T\beta_{K-1}$
+$\end{cases}$
+
+Where $\pi_i$ is the probability that a given observation is in category i and, by convention, category K is our reference category. 
+
+##
+
+As you can see, the odds that a given observation is in category i vs category K is given by $exp(X^T\beta_i)$ and the the percentage that a given observation is in category i, $\pi_i$, is $\pi_Kexp(X^T\beta_i)$. As a result, one can deduce that since the sum of the probabilities that observation i is in each category equal 1 ($\sum_{i=1}^{K}\pi_i = 1$), and $\sum_{i=1}^{K}\pi_i = \pi_K + \sum_{i=1}^{K-1}\pi_Kexp(X\beta_i) = \pi_K(1 + sum_{i=1}^{K-1}exp(X\beta_i))$, $\pi_K = 1/(1 + \sum_{i=1}^{K-1}exp(X^T\beta_i))$. Therefore, the probability that an observation is in each category is given by:
+$\begin{cases}$
+$\pi_1 = exp(X^T\beta_1)/(1 + \sum_{i=1}^{K-1}exp(X^T\beta_i)) \\$
+$... \\$
+$\pi_{K-1} = exp(X^T\beta_{K-1})/(1 + \sum_{i=1}^{K-1}exp(X^T\beta_i)) \\$
+$\pi_{K} = 1/(1 + \sum_{i=1}^{K-1}exp(X^T\beta_i))$
+$\end{cases}$
+
+## Softmax function
+
+The Softmax function is essentially an extension of the logistic function from ordinary logistic regression. The softmax function takes in a vector of log odds and converts it into a vector of probabilities. Given a vector z of length n, $softmax(z) = (1/\sum_{i=1}^{n}(exp(z_i)))[exp(z_1) ... exp(z_n)]^T$.
+
+Now if we define another vector, $\beta_K$, equal to the zero vector, it is easy to see that $exp(X^T\beta_K) = 1$. We can then let $\pi_K = exp(X^T\beta_K)/(\sum_{i=1}^{K}exp(X^T\beta_i))$ and in general, $\pi_i = exp(X^T\beta_i)/(\sum_{j=1}^{K}exp(X^T\beta_j))$ for $i \in \{1,...,K\}$. Let's then define $\beta = [\beta_1, \beta_2,...,\beta_K] \in \mathbb{R}^{P{\times}K}$ and $\pi = [\pi_1, ..., \pi_K]^T$. Observe that $\beta^TX = [X^T\beta_1, X^T\beta_2, ..., X^T\beta_K]^T$, meaning, our model can be expressed simply as $\pi = softmax(\beta^TX)$
+
+## Non-Uniqueness of Parameter Estimates
+
+Lets say we update each $\beta_i$ to $\beta_i + \beta^*$ for some constant vector $\beta^*$. Let $pi_i^*$ be the updated probability that an observation is in category i given the updated parameters. Observe that, $\pi_i^* = exp(X^T(\beta_i + \beta^*))/(\sum_{j=1}^{K}exp(X^T(\beta_j + \beta^*))) = exp(X^T\beta_i)exp(X^T\beta^*)/(\sum_{j=1}^{K}exp(X^T\beta_j)exp(X^T\beta^*)) = exp(X^T\beta_i)/(\sum_{j=1}^{K}exp(X^T\beta_j)) = \pi_i$. Therefore, as we can see, the probabilities are not uniquely defined by the set of parameters and in fact, for any model if you add another vector to each of the parameter vectors, you will achieve the same results. This is why we choose a reference category and set it's parameter vector to the zero vector which in turn restricts our solution space.
+
 
 ## Interpretation of Parameter Estimates
 
@@ -82,6 +104,7 @@ Examples of this would be:
 - Similar to Logistic Regression, it is easier to interpret odds than log odds.
 - For a unit increase in $X_j$, the odds that a given observation is category i vs our reference category changes by a factor of $exp(\beta_{i,j})$.
 
+<<<<<<< Updated upstream
 ## Why Significance Test in Multinomial Regression?
 
 - Helps determine which predictors are statistically meaningful.
@@ -116,6 +139,26 @@ lrt_result
 ## Multiomial Regression in R
 ```{r}
 # Loading necessary libraries and the dataset
+=======
+## Parameter Estimation
+
+Like ordinary logistic regression, in order to estimate the parameters, $\beta$, we have to calculate the maximum likelihood estimation.
+
+For starters, our likelihood function is given by, $L(\beta|X) = \prod_{i=1}^{n}\prod_{c=1}^{K}P(y_i=c|x_i,\beta)^{1\{y_i=c\}}$. Where $1\{\}$ is the indicator function, which returns 1 if the statement inside the brackets is true and 0 if the statement inside the brackets is false. Of course, it is typically easier to differentiate a sum rather than a product so we look at the log-likelihood function instead given by, $\ell(\beta|X) = \sum_{i=1}^n\sum_{c=1}^K1\{y_i=c\}log(P(y_i=c|x_i,\beta) = \sum_{i=1}^n\sum_{c=1}^K1\{y_i=c\}(x_i^T\beta_c - log(\sum_{j=1}^Kexp(x_i^T\beta_j)$.
+
+##
+
+Now, finding the maximum likelihood estimation is equivalent to finding when each $\nabla_{\beta_i}\ell(\beta|X)$ is equal to the zero vector. It can be shown that 
+$\nabla_{\beta_i}\ell(\beta|X) = X^T \begin{bmatrix}1\{y_1=m\}-P(y_1=m|x_1,\beta) \\ ... \\ 1\{y_n=m\}-P(y_n=m|x_n,\beta)\end{bmatrix}$ which, like ordinary simple regression, has no closed form when set equal to 0.
+
+Therefore we need to use a generalization of newtons method in order to find the minimum of $\nabla_{\beta_i}\ell(\beta|X)$, using the following update formula: $\beta_m^{(r)} = \beta_m^{(r-1)} - (H_m^{(r-1)})^{-1}X^T\begin{bmatrix}1\{y_1=m\}-P(y_1=m|x_1,\beta^{(r-1)}) \\ ... \\ 1\{y_n=m\}-P(y_n=m|x_n,\beta^{(r-1)})\end{bmatrix}$ Where $H_m^{(r-1)}$ is the Hessian of $\nabla_{\beta_m}\ell(\beta^{(r-1)}|X)$ and can be explicitly defined as $-X^TW_m^{(r-1)}X$ where $W_m$ is an n by n matrix with the ith diagonal entry being $P(y_i = m|x_i,\beta^{(r-1)})(1 - P(y_i = m|x_i,\beta^{(r-1)}))$
+
+## Small example
+
+## Main example
+
+```{r eval=FALSE, include=FALSE}
+>>>>>>> Stashed changes
 library(nnet)
 library(caret)
 library(readr)
@@ -187,10 +230,15 @@ full_model_summary$AIC
 ```
 
 ## Confusion Matrix and Interpretations
+<<<<<<< Updated upstream
 ```{r}
 # Find predicted values that the model suggests
 predicted_full_model <- predict(full_model, newdata = steel_faults)
 
+=======
+
+```{r eval=FALSE, include=FALSE}
+>>>>>>> Stashed changes
 # Confusion matrix
 cm <- confusionMatrix(predicted_full_model, steel_faults$Fault_Type)
 cm$overall
