@@ -1,7 +1,7 @@
 ---
 title: "Multinomial Regression"
 author: "Chris Ryan, Jeb Brown, Varsha Manickam, Meghna Kommoju, Zhennan Shen"
-date: "2025-04-15"
+date: "2025-04-22"
 fontsize: 9pt
 classoption: "aspectratio=169"
 output: 
@@ -80,45 +80,45 @@ Examples of this would be:
 
 ## Multiomial Regression in R
 ```{r}
- # Loading necessary libraries and the dataset
- library(nnet)
- library(caret)
- library(readr)
- library(dplyr)
+# Loading necessary libraries and the dataset
+library(nnet)
+library(caret)
+library(readr)
+library(dplyr)
  
- steel_faults <- read_csv("steel_faults.csv")
+steel_faults <- read_csv("steel_faults.csv")
  
- # We need to combine the various fault columns into one column, and get rid of the separate columns
- steel_faults <- steel_faults %>%
-   mutate(Fault_Type = case_when(
-     Pastry == 1 ~ "Pastry",
-     Z_Scratch == 1 ~ "Z_Scratch",
-     K_Scatch == 1 ~ "K_Scatch",
-     Stains == 1 ~ "Stains",
-     Dirtiness == 1 ~ "Dirtiness",
-     Bumps == 1 ~ "Bumps",
-     Other_Faults == 1 ~ "Other"
-   )) %>%
-   select(-Pastry, -Z_Scratch, -K_Scatch, -Stains, -Dirtiness, -Bumps, -Other_Faults)
+# We need to combine the various fault columns into one column, and get rid of the separate columns
+steel_faults <- steel_faults %>%
+ mutate(Fault_Type = case_when(
+   Pastry == 1 ~ "Pastry",
+   Z_Scratch == 1 ~ "Z_Scratch",
+   K_Scatch == 1 ~ "K_Scatch",
+   Stains == 1 ~ "Stains",
+   Dirtiness == 1 ~ "Dirtiness",
+   Bumps == 1 ~ "Bumps",
+   Other_Faults == 1 ~ "Other"
+ )) %>%
+ select(-Pastry, -Z_Scratch, -K_Scatch, -Stains, -Dirtiness, -Bumps, -Other_Faults)
  
  
- # We need to convert the targets to factors since we are dealing with categories
- steel_faults$Fault_Type <- as.factor(steel_faults$Fault_Type)
+# We need to convert the targets to factors since we are dealing with categories
+steel_faults$Fault_Type <- as.factor(steel_faults$Fault_Type)
  
 ```
- The data we are using for our main example is a dataset that contains various physical and visual measurements of steel plates. These measurements are then used to classify the fault that has occurred in the manufacturing of each plate. 
+The data we are using for our main example is a dataset that contains various physical and visual measurements of steel plates. These measurements are then used to classify the fault that has occurred in the manufacturing of each plate. 
  
- The types of faults that we will be classifying are:
+The types of faults that we will be classifying are:
  
- - Pastry
- - Z Scratch
- - K Scratch
- - Stains
- - Dirtiness
- - Bumps
- - Other Faults
+- Pastry
+- Z Scratch
+- K Scratch
+- Stains
+- Dirtiness
+- Bumps
+- Other Faults
  
- The data was found at https://archive.ics.uci.edu/dataset/198/steel+plates+faults. In our example our goal will to be to build a multinomial regression model that can accurately classify the types of faults that the plates in the dataset have.
+The data was found at https://archive.ics.uci.edu/dataset/198/steel+plates+faults. In our example our goal will to be to build a multinomial regression model that can accurately classify the types of faults that the plates in the dataset have.
  
 ## Descriptive Statistics
  
@@ -126,10 +126,49 @@ Our dataset contains 27 different predictor variables that describe the features
 
 Here we can see the distribution of the types of faults in our dataset. 
 ```{r}
- table(steel_faults$Fault_Type)
+table(steel_faults$Fault_Type)
 ```
 We have a total of 1940 observations of steel plate faults in our dataset.
  
+
+## Building the full model
+
+```{r}
+library(MASS)
+library(nnet)
+```
+
+ 
+```{r, echo=TRUE}
+
+# Fitting the multinomial model to the data
+full_model <- multinom(Fault_Type ~ ., data = steel_faults)
+
+# Storing model summary so we can access various pieces of it 
+full_model_summary <- summary(full_model)
+
+# Accessing the AIC of the full model
+full_model_summary$AIC
+```
+
+## Confusion Matrix and Interpretations
+```{r}
+# Find predicted values that the model suggests
+predicted_full_model <- predict(full_model, newdata = steel_faults)
+
+# Confusion matrix
+cm <- confusionMatrix(predicted_full_model, steel_faults$Fault_Type)
+cm$overall
+cm$table
+```
+
+
+## Confusion Matrix and Interpretations (cont.)
+```{r}
+cm$byClass
+```
+
+
 ## Finding Which Predictors to Use
 
 ```{r}
@@ -141,25 +180,52 @@ library(corrplot)
 corrplot(correlations, method = "circle")
 ```
 
-## Building the full model
- 
-```{r, results='hide'}
-# Fitting the multinomial model to the data
-model <- multinom(Fault_Type ~ ., data = steel_faults)
- 
-# Find predicted values that the model suggests
-predicted <- predict(model, newdata = steel_faults)
- 
-summary(model)
+## Finding Which Predictors to Use (cont.)
+
+```{r, echo=TRUE}
+# Stepwise variable selection
+#stepwise_model <- stepAIC(full_model, direction = "both", trace = FALSE)
+
+# See which predictors were selected
+#summary(stepwise_model)
+```
+In the stepwise summary, we are able to see that the model with the lowest AIC is one that contains 20 of our predictor variables. 
+
+
+## Creating Refined Model Using AIC Comparisons
+```{r, results='hide', echo=TRUE}
+# Fitting the refined multinomial model
+refined_model <- multinom(formula = Fault_Type ~ X_Minimum + Y_Minimum + Y_Maximum + 
+    Minimum_of_Luminosity + Maximum_of_Luminosity + Length_of_Conveyer + 
+    TypeOfSteel_A300 + TypeOfSteel_A400 + Steel_Plate_Thickness + 
+    Edges_Index + Empty_Index + Square_Index + Edges_X_Index + 
+    Edges_Y_Index + Log_X_Index + Log_Y_Index + Orientation_Index + 
+    Luminosity_Index + SigmoidOfAreas + Outside_Global_Index, 
+    data = steel_faults)
+
+# Storing model summary so we can access various pieces of it 
+refined_model_summary <- summary(refined_model)
+
+# Accessing AIC of the refined model
+refined_model_summary$AIC
+
 ```
 
-## Confusion Matrix and Interpretations
+## Updated Confusion Matrix and Interpretations
 ```{r}
-# Confusion matrix
-cm <- confusionMatrix(predicted, steel_faults$Fault_Type)
-cm$table
+# Find predicted values that the model suggests
+predicted_refined_model <- predict(refined_model, newdata = steel_faults)
 
- 
-cm$byClass
+cm_refined <- confusionMatrix(predicted_refined_model, steel_faults$Fault_Type)
+cm_refined$overall
+cm_refined$table
 ```
 
+## Updated Confusion Matrix and Interpretations (cont.)
+```{r}
+cm_refined$byClass
+```
+
+## References
+- https://bookdown.org/sarahwerth2024/CategoricalBook/multinomial-logit-regression-r.html
+- http://ufldl.stanford.edu/tutorial/supervised/SoftmaxRegression/
