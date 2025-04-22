@@ -274,14 +274,18 @@ cm$byClass
 
 ## Finding Which Predictors to Use
 
-```{r, echo=TRUE}
+```{r, echo=TRUE, results='hide'}
 # Stepwise variable selection
-#stepwise_model <- stepAIC(full_model, direction = "both", trace = FALSE)
-
-# See which predictors were selected
-#summary(stepwise_model)
+stepwise_model <- stepAIC(full_model, direction = "both", trace = FALSE)
 ```
-In the stepwise summary, we are able to see that the model with the lowest AIC is one that contains 20 of our predictor variables. 
+
+```{r, echo=TRUE}
+# See which predictors were selected
+stepwise <- summary(stepwise_model)
+stepwise$call
+```
+
+In the stepwise summary, we are able to see that the model with the lowest AIC is one that contains 20 of our predictor variables. We will now use these predictors to form our refined model.
 
 
 ## Creating Refined Model Using AIC Comparisons
