@@ -320,11 +320,6 @@ cm_refined$table
 cm_refined$byClass
 ```
 
-<<<<<<< Updated upstream
-=======
-<<<<<<< HEAD
-=======
->>>>>>> Stashed changes
 ## Final Model Performance: Key Takeaways
 - The refined model improved overall classification accuracy from **71.5%** to **73.6%**.
 - Kappa increased slightly from **0.62** to **0.66**, indicating better agreement beyond chance.
@@ -413,7 +408,6 @@ Condition Index
 - Our results showed that petal length and petal width are highly correlated, which could distort the model’s interpretations.
 
 
->>>>>>> 20ab36db6e59da8584781a42327f3bc9f66d8d48
 ## References
 - https://bookdown.org/sarahwerth2024/CategoricalBook/multinomial-logit-regression-r.html
 - http://ufldl.stanford.edu/tutorial/supervised/SoftmaxRegression/
