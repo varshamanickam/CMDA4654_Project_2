@@ -360,10 +360,7 @@ Checking multicollinearity ensures:
 
 
 ## Sample example link to Checking Assumptions
-
-install.packages("car", dependencies = TRUE)  
-library(car)  
-
+```{r, echo=TRUE}
 ## Step 1: Fit model and extract predictor names
 model_vif <- lm(Sepal.Length ~ Sepal.Width + Petal.Length + Petal.Width, data = iris)  # Fit a linear model with Sepal.Length as the response
 predictors <- c("Sepal.Width", "Petal.Length", "Petal.Width")  # Manually specify the predictor variable names
@@ -384,7 +381,11 @@ vif_values <- sapply(predictors, function(var) {  # For each predictor, calculat
 
 ## Step 4: Compute Tolerance
 tolerance_values <- 1 / vif_values  # Tolerance is simply the inverse of VIF
+```
 
+##
+
+```{r, echo=TRUE}
 ## Step 5: Show results
 print(vif_values)  # Print calculated VIF values
 print(tolerance_values)  # Print calculated Tolerance values
@@ -403,6 +404,7 @@ condition_index <- sqrt(max(eig_vals) / eig_vals)  # Condition index = sqrt(larg
 
 ## Step 10: Print the result
 print(condition_index)  
+```
 
 ## Multicollinearity Check Summary 
 
