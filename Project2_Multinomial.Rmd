@@ -298,6 +298,68 @@ cm_refined$table
 cm_refined$byClass
 ```
 
+## Assumption Checks: VIF, Tolerance, Condition Index
+To ensure that each coefficient in our multinomial model is meaningful, we use:
+
+### 1. Variance Inflation Factor (VIF)
+
+- Measures how much the variance of a coefficient \( \hat{\beta}_j \) increases due to correlation among predictors.
+- If predictor \( X_j \) is linearly predicted from other variables with \( R_j^2 \), then:
+
+\[
+\text{VIF}_j = \frac{1}{1 - R_j^2}
+\]
+
+- A high \( R_j^2 \) means \( X_j \) is redundant.
+- **If VIF > 5 or 10**, the variable is considered multicollinear.
+
+
+### 2. Tolerance
+
+- Simply the inverse of VIF:
+
+\[
+\text{Tolerance}_j = 1 - R_j^2 = \frac{1}{\text{VIF}_j}
+\]
+
+- **If Tolerance < 0.1**, the variable provides little new information and may cause instability.
+
+### 3. Condition Index (CI)
+- Derived from eigenvalues \( \lambda \) of the scaled \( X^TX \) matrix.
+\[
+\text{CI}_k = \sqrt{\frac{\lambda_{\text{max}}}{\lambda_k}}
+\]
+
+# Why This Matters in Multinomial Logistic Regression
+
+- In multinomial regression, we estimate \( K-1 \) sets of coefficients \( \beta_i \) for each non-reference category.
+- Each set is estimated using **maximum likelihood**, which assumes stable and independent information from predictors.
+- If predictors are highly correlated:
+  - The model may assign unstable or misleading weights to them.
+  - Standard errors will be large, making **significance tests unreliable**.
+  - The optimization (Newton-Raphson updates) may fail to converge or return inflated coefficients.
+
+---
+
+Checking multicollinearity ensures:
+- The **log-odds interpretation** of each \( \beta_{i,j} \) is trustworthy.
+- The probabilities returned by the **softmax function** are stable.
+- The model doesn’t **overfit noise** from redundant features.
+
+## Smaple example link to Checking Assumptions
+
+
+
+
 ## References
 - https://bookdown.org/sarahwerth2024/CategoricalBook/multinomial-logit-regression-r.html
 - http://ufldl.stanford.edu/tutorial/supervised/SoftmaxRegression/
+
+- UCLA Institute for Digital Research and Education (IDRE). *Multinomial Logistic Regression | Stata/Logistic Regression Resources*.  
+  Retrieved from: [https://stats.oarc.ucla.edu/](https://stats.oarc.ucla.edu/)
+
+- Fox, J., & Weisberg, S. (2019). *An R Companion to Applied Regression* (3rd ed.).  
+  Retrieved from: [https://cran.r-project.org/web/packages/car/index.html](https://cran.r-project.org/web/packages/car/index.html)
+
+- James, G., Witten, D., Hastie, T., & Tibshirani, R. (2021). *An Introduction to Statistical Learning* (2nd ed.). Springer.  
+  Chapter 3 covers multicollinearity and variable selection.
