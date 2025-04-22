@@ -29,17 +29,8 @@ knitr::knit_hooks$set(chunk = function(x, options) {
 
 
 ```
-## Introduction
 
-> "All models are wrong, but some are useful."  
-> — George E. P. Box
-
-- In manufacturing, it’s important to find problems early to keep products high quality.
-- We are using **Multinomial Logistic Regression** to predict **types of faults** in steel plates using data from the production process.
-- The outcome has **more than two categories** with no specific order, which fits this model well.
-- Our goal is to build a model that predicts fault types, explains which features matter most, and checks that the model works correctly.
-
-## Multinomial Regression
+## Multinomial Regression Introduction
 
 Multinomial Regression (also called Multinomial Logistic Regression or Softmax Regression) is a classification method that is used to predict nominal outcome variables that have more than two outcomes (polytomous) that do not have a rank or order. Examples of this would be:
 
@@ -54,6 +45,20 @@ Multinomial Regression (also called Multinomial Logistic Regression or Softmax R
 -   No multicollinearity between independent variables
 -   Linear relationship between continuous variables and the logit transformation of the outcome variable
 
+## Why This Matters in Multinomial Logistic Regression
+
+- In multinomial regression, we estimate \( K-1 \) sets of coefficients \( \beta_i \) for each non-reference category.
+- Each set is estimated using **maximum likelihood**, which assumes stable and independent information from predictors.
+- If predictors are highly correlated:
+  - The model may assign unstable or misleading weights to them.
+  - Standard errors will be large, making **significance tests unreliable**.
+  - The optimization (Newton-Raphson updates) may fail to converge or return inflated coefficients.
+
+Checking multicollinearity ensures:
+- The **log-odds interpretation** of each \( \beta_{i,j} \) is trustworthy.
+- The probabilities returned by the **softmax function** are stable.
+- The model doesn’t **overfit noise** from redundant features.
+
 ## Multinomial Regression Basics
 
 -   An extension of Logistic Regression
@@ -65,14 +70,15 @@ Multinomial Regression (also called Multinomial Logistic Regression or Softmax R
 ## Multinomial Regression Interpretation
 
 A Multinomial Regression model with K response categories and P explanatory variables is comprised of K-1 Logistic Regression Models:
+
 $\begin{cases}$
 $log(\pi_1/\pi_K) = \beta_{1,0} + \beta_{1,1}*X_1 + ... + \beta_{1,p}*X_p = X^T\beta_1 \\$
 $log(\pi_2/\pi_K) = \beta_{2,0} + \beta_{2,1}*X_1 + ... + \beta_{2,p}*X_p = X^T\beta_2 \\$
 $... \\$
 $log(\pi_{K-1}/\pi_K) = \beta_{K-1,0} + \beta_{K-1,1}*X_1 + ... + \beta_{K-1,p}*X_p = X^T\beta_{K-1}$
 $\end{cases}$
-\\
-(Where $\pi_i$ is the probability that the observation is in category i and, by convention, category K is our reference category.)
+
+- (Where $\pi_i$ is the probability that the observation is in category i and, by convention, category K is our reference category.)
 
 ##
 
@@ -144,64 +150,20 @@ Much like Logistic Regression, the solution to this has no closed form when set 
 
 ## LRT Example on `iris` Dataset
 
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, echo=TRUE, results='hide'}
 library(nnet)
 full_model <- multinom(Species ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width, data = iris)
 reduced_model <- multinom(Species ~ Petal.Length + Petal.Width, data = iris)
+```
 
+```{r, echo=TRUE}
 lrt_result <- anova(reduced_model, full_model, test = "Chisq")
 lrt_result
 ```
+
 - LR stat = 8.68, df = 4, p-value = 0.0696
 - p > 0.05 → not statistically significant
 - Sepal predictors may not be needed, reduced model performs nearly as well
-
-## Sample example link to Checking Assumptions
-```{r, echo=TRUE}
-## Step 1: Fit model and extract predictor names
-model_vif <- lm(Sepal.Length ~ Sepal.Width + Petal.Length + Petal.Width, data = iris)  # Fit a linear model with Sepal.Length as the response
-predictors <- c("Sepal.Width", "Petal.Length", "Petal.Width")  # Manually specify the predictor variable names
-data_used <- model_vif$model  # Extract the dataset used in the fitted model
-
-## Step 2: Function to get R² for one predictor
-get_r2 <- function(var, others, data) {  # Define a function to compute R-squared for one variable regressed on the others
-  formula <- as.formula(paste(var, "~", paste(others, collapse = "+")))  # Build the regression formula as a string and convert to a formula
-  summary(lm(formula, data))$r.squared  # Run linear model and extract R² value
-}
-
-## Step 3: Compute VIF manually
-vif_values <- sapply(predictors, function(var) {  # For each predictor, calculate VIF
-  others <- setdiff(predictors, var)  # Get all other predictors except the current one
-  r2 <- get_r2(var, others, data_used)  # Get R² of current variable predicted by the others
-  1 / (1 - r2)  # Apply VIF formula: VIF = 1 / (1 - R²)
-})
-
-## Step 4: Compute Tolerance
-tolerance_values <- 1 / vif_values  # Tolerance is simply the inverse of VIF
-```
-
-##
-
-```{r, echo=TRUE}
-## Step 5: Show results
-print(vif_values)  # Print calculated VIF values
-print(tolerance_values)  # Print calculated Tolerance values
-
-## Step 6: Extract the numeric predictors used in the model
-X <- model_vif$model[, -1]  # Remove the response variable column to isolate predictors
-
-## Step 7: Ensure it's a numeric matrix
-X <- as.matrix(X)  # Convert the predictors to a numeric matrix for matrix operations
-
-## Step 8: Calculate eigenvalues of X-transpose times X
-eig_vals <- eigen(t(X) %*% X)$values  # Compute the eigenvalues of XTX (used to assess multicollinearity)
-
-## Step 9: Compute condition index
-condition_index <- sqrt(max(eig_vals) / eig_vals)  # Condition index = sqrt(largest eigenvalue / each eigenvalue)
-
-## Step 10: Print the result
-print(condition_index)  
-```
 
 ## Main example
 
@@ -351,83 +313,6 @@ cm_refined$byClass
   - *Pastry* and *Dirtiness*: These faults may have overlapping features with other categories.
   - The **Other** category continues to show frequent misclassification, probably because it's a catch-all group
   - *Stains* (**0.91**): Strong performance despite smaller class size.
-
-
-
-## Assumption Checks: VIF, Tolerance, Condition Index
-To ensure that each coefficient in our multinomial model is meaningful, we use:
-
-## 1. Variance Inflation Factor (VIF)
-
-- Measures how much the variance of a coefficient \( \hat{\beta}_j \) increases due to correlation among predictors.
-- If predictor \( X_j \) is linearly predicted from other variables with \( R_j^2 \), then:
-
-\[
-\text{VIF}_j = \frac{1}{1 - R_j^2}
-\]
-
-- A high \( R_j^2 \) means \( X_j \) is redundant.
-- **If VIF > 5 or 10**, the variable is considered multicollinear.
-
-
-## 2. Tolerance
-
-- Simply the inverse of VIF:
-
-\[
-\text{Tolerance}_j = 1 - R_j^2 = \frac{1}{\text{VIF}_j}
-\]
-
-- **If Tolerance < 0.1**, the variable provides little new information and may cause instability.
-
-## 3. Condition Index (CI)
-- Derived from eigenvalues \( \lambda \) of the scaled \( X^TX \) matrix.
-\[
-\text{CI}_k = \sqrt{\frac{\lambda_{\text{max}}}{\lambda_k}}
-\]
-
-## Why This Matters in Multinomial Logistic Regression
-
-- In multinomial regression, we estimate \( K-1 \) sets of coefficients \( \beta_i \) for each non-reference category.
-- Each set is estimated using **maximum likelihood**, which assumes stable and independent information from predictors.
-- If predictors are highly correlated:
-  - The model may assign unstable or misleading weights to them.
-  - Standard errors will be large, making **significance tests unreliable**.
-  - The optimization (Newton-Raphson updates) may fail to converge or return inflated coefficients.
-
----
-
-Checking multicollinearity ensures:
-- The **log-odds interpretation** of each \( \beta_{i,j} \) is trustworthy.
-- The probabilities returned by the **softmax function** are stable.
-- The model doesn’t **overfit noise** from redundant features.
-## Softmax Function: Turning Scores into Probabilities
-
-## Multicollinearity Check Summary 
-
-Variance Inflation Factor (VIF)
-- Sepal.Width = 1.27
-- Petal.Length = 15.10
-- Petal.Width = 14.23
-
-
-Tolerance Values
-- Sepal.Width = 0.787
-- Petal.Length = 0.066
-- Petal.Width = 0.070
-
-Condition Index
-- Values: 1.00, 3.97, 26.03
-
-- Petal.Length and Petal.Width show strong multicollinearity, which may cause unstable coefficient estimates and reduce the reliability of the regression model.
-
-- In this analysis, we used a linear regression model to predict sepal length based on sepal width, petal length, 
-- and petal width. Before interpreting the model's coefficients, we checked for multicollinearity 
-- which tells us whether the predictor variables are too strongly related to each other.
-
-- This matters because high multicollinearity can make the model unstable and make it hard to determine which variable is actually influencing the response. 
-- Our results showed that petal length and petal width are highly correlated, which could distort the model’s interpretations.
-
 
 ## References
 - https://bookdown.org/sarahwerth2024/CategoricalBook/multinomial-logit-regression-r.html
