@@ -133,6 +133,30 @@ Much like Logistic Regression, the solution to this has no closed form when set 
 
 (Where $H(\nabla_{\beta_m}\ell(\beta^{(r-1)}|X)$ is the Hessian of $\nabla_{\beta_m}\ell(\beta^{(r-1)}|X)$. Explicitly, we can deduce that this is defined as $-X^TW_m^{(r-1)}X$, where $W_m$ is an n by n, diagonal matrix with the ith diagonal entry being $P(y_i = m|x_i,\beta^{(r-1)})(1 - P(y_i = m|x_i,\beta^{(r-1)}))$
 
+## Example on a small dataset
+
+Below we will run multinomial regression on the iris dataset to try and predict each observations species. We select the setosa species to be our base level
+
+```{r, message=FALSE, warning=FALSE, echo=TRUE, results='hide'}
+library(nnet)
+
+data(iris)
+# set base level
+iris$Species <- relevel(iris$Species, ref = "setosa")
+
+model <- multinom(Species ~ ., data = iris, blahblahblah=setosa)
+
+```
+
+```{r, echo=TRUE}
+model_summary <- summary(model)
+model_summary$coefficients
+```
+
+
+As you can see, ...
+
+
 ## Why Significance Test in Multinomial Regression?
 
 - Helps determine which predictors are statistically meaningful.
@@ -150,20 +174,15 @@ Much like Logistic Regression, the solution to this has no closed form when set 
 
 ## LRT Example on `iris` Dataset
 
-```{r, message=FALSE, warning=FALSE, echo=TRUE, results='hide'}
-library(nnet)
-full_model <- multinom(Species ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width, data = iris)
-reduced_model <- multinom(Species ~ Petal.Length + Petal.Width, data = iris)
-```
-
 ```{r, echo=TRUE}
-lrt_result <- anova(reduced_model, full_model, test = "Chisq")
+null_model <- multinom(Species ~ 1, data=iris)
+lrt_result <- anova(null_model, model, test = "Chisq")
 lrt_result
 ```
 
-- LR stat = 8.68, df = 4, p-value = 0.0696
-- p > 0.05 → not statistically significant
-- Sepal predictors may not be needed, reduced model performs nearly as well
+- LR stat = 317.684, df = 8, p-value = 0
+- p < 0.05 → statistically significant
+- There is evidence that the full model is better than the null model
 
 ## Main example
 
@@ -261,16 +280,16 @@ cm$byClass
 
 ```{r, echo=TRUE, results='hide'}
 # Stepwise variable selection
-stepwise_model <- stepAIC(full_model, direction = "both", trace = FALSE)
+#stepwise_model <- stepAIC(full_model, direction = "both", trace = FALSE)
 ```
 
 ```{r, echo=TRUE}
 # See which predictors were selected
-stepwise <- summary(stepwise_model)
-stepwise$call
+#stepwise <- summary(stepwise_model)
+#stepwise$call
 ```
 
-In the stepwise summary, we are able to see that the model with the lowest AIC is one that contains 20 of our predictor variables. We will now use these predictors to form our refined model.
+In the stepwise summary, we are able to see that the model with the lowest AIC is one that contains 20 of our predictor variables. We will now use these predictors indicated from the stepAIC to form our refined model.
 
 
 ## Creating Refined Model Using AIC Comparisons
