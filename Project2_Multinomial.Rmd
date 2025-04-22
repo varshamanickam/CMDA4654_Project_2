@@ -347,31 +347,76 @@ Checking multicollinearity ensures:
 - The model doesn’t **overfit noise** from redundant features.
 ## Softmax Function: Turning Scores into Probabilities
 
-In multinomial logistic regression, each class is assigned a **linear score**:
 
-\[
-z_k = x^\top \beta_k
-\]
+## Sample example link to Checking Assumptions
 
-The **softmax function** transforms these raw scores into probabilities:
+install.packages("car", dependencies = TRUE)  
+library(car)  
 
-\[
-\pi_k = \frac{\exp(x^\top \beta_k)}{\sum_{j=1}^{K} \exp(x^\top \beta_j)}
-\]
+# Step 1: Fit model and extract predictor names
+model_vif <- lm(Sepal.Length ~ Sepal.Width + Petal.Length + Petal.Width, data = iris)  # Fit a linear model with Sepal.Length as the response
+predictors <- c("Sepal.Width", "Petal.Length", "Petal.Width")  # Manually specify the predictor variable names
+data_used <- model_vif$model  # Extract the dataset used in the fitted model
 
-- Each \( \pi_k \) represents the **predicted probability** of class \( k \)
-- The sum of all class probabilities is 1
-- This allows for a **probabilistic interpretation** of the model output
+# Step 2: Function to get R² for one predictor
+get_r2 <- function(var, others, data) {  # Define a function to compute R-squared for one variable regressed on the others
+  formula <- as.formula(paste(var, "~", paste(others, collapse = "+")))  # Build the regression formula as a string and convert to a formula
+  summary(lm(formula, data))$r.squared  # Run linear model and extract R² value
+}
 
----
+# Step 3: Compute VIF manually
+vif_values <- sapply(predictors, function(var) {  # For each predictor, calculate VIF
+  others <- setdiff(predictors, var)  # Get all other predictors except the current one
+  r2 <- get_r2(var, others, data_used)  # Get R² of current variable predicted by the others
+  1 / (1 - r2)  # Apply VIF formula: VIF = 1 / (1 - R²)
+})
 
-**Why it matters:**  
-- Without softmax, the model produces unbounded values that can’t be interpreted directly.
-- Softmax ensures we can apply **maximum likelihood estimation**, interpret coefficients meaningfully, and make class predictions using.
+# Step 4: Compute Tolerance
+tolerance_values <- 1 / vif_values  # Tolerance is simply the inverse of VIF
 
-## Smaple example link to Checking Assumptions
+# Step 5: Show results
+print(vif_values)  # Print calculated VIF values
+print(tolerance_values)  # Print calculated Tolerance values
+
+# Step 6: Extract the numeric predictors used in the model
+X <- model_vif$model[, -1]  # Remove the response variable column to isolate predictors
+
+# Step 7: Ensure it's a numeric matrix
+X <- as.matrix(X)  # Convert the predictors to a numeric matrix for matrix operations
+
+# Step 8: Calculate eigenvalues of X-transpose times X
+eig_vals <- eigen(t(X) %*% X)$values  # Compute the eigenvalues of XᵀX (used to assess multicollinearity)
+
+# Step 9: Compute condition index
+condition_index <- sqrt(max(eig_vals) / eig_vals)  # Condition index = sqrt(largest eigenvalue / each eigenvalue)
+
+# Step 10: Print the result
+print(condition_index)  
+
+## Multicollinearity Check Summary 
+
+Variance Inflation Factor (VIF)
+- Sepal.Width = 1.27
+- Petal.Length = 15.10
+- Petal.Width = 14.23
 
 
+Tolerance Values
+- Sepal.Width = 0.787
+- Petal.Length = 0.066
+- Petal.Width = 0.070
+
+Condition Index
+- Values: 1.00, 3.97, 26.03
+
+-Petal.Length and Petal.Width show strong multicollinearity, which may cause unstable coefficient estimates and reduce the reliability of the regression model.
+
+-In this analysis, we used a linear regression model to predict sepal length based on sepal width, petal length, 
+-and petal width. Before interpreting the model's coefficients, we checked for multicollinearity 
+-which tells us whether the predictor variables are too strongly related to each other.
+
+-This matters because high multicollinearity can make the model unstable and make it hard to determine which variable is actually influencing the response. 
+-Our results showed that petal length and petal width are highly correlated, which could distort the model’s interpretations.
 
 
 ## References
