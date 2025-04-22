@@ -353,6 +353,19 @@ cm_refined$table
 cm_refined$byClass
 ```
 
+## Final Model Performance: Key Takeaways
+- The refined model improved overall classification accuracy from **71.5%** to **73.6%**.
+- Kappa increased slightly from **0.62** to **0.66**, indicating better agreement beyond chance.
+- **F1 Scores** were highest for:
+  - *K_Scratch* (**0.93**): Model is very effective at identifying this fault.
+  - *Stains* (**0.91**): Strong performance despite smaller class size.
+- **F1 Scores** were lowest for:
+  - *Pastry* and *Dirtiness*: These faults may have overlapping features with other categories.
+  - The **Other** category continues to show frequent misclassification, probably because it's a catch-all group
+  - *Stains* (**0.91**): Strong performance despite smaller class size.
+
+
+
 ## Assumption Checks: VIF, Tolerance, Condition Index
 To ensure that each coefficient in our multinomial model is meaningful, we use:
 
