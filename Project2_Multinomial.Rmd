@@ -345,6 +345,29 @@ Checking multicollinearity ensures:
 - The **log-odds interpretation** of each \( \beta_{i,j} \) is trustworthy.
 - The probabilities returned by the **softmax function** are stable.
 - The model doesn’t **overfit noise** from redundant features.
+## Softmax Function: Turning Scores into Probabilities
+
+In multinomial logistic regression, each class is assigned a **linear score**:
+
+\[
+z_k = x^\top \beta_k
+\]
+
+The **softmax function** transforms these raw scores into probabilities:
+
+\[
+\pi_k = \frac{\exp(x^\top \beta_k)}{\sum_{j=1}^{K} \exp(x^\top \beta_j)}
+\]
+
+- Each \( \pi_k \) represents the **predicted probability** of class \( k \)
+- The sum of all class probabilities is 1
+- This allows for a **probabilistic interpretation** of the model output
+
+---
+
+**Why it matters:**  
+- Without softmax, the model produces unbounded values that can’t be interpreted directly.
+- Softmax ensures we can apply **maximum likelihood estimation**, interpret coefficients meaningfully, and make class predictions using.
 
 ## Smaple example link to Checking Assumptions
 
