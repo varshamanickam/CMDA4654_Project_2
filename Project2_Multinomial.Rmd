@@ -312,7 +312,7 @@ cm_refined$byClass
 ## Assumption Checks: VIF, Tolerance, Condition Index
 To ensure that each coefficient in our multinomial model is meaningful, we use:
 
-### 1. Variance Inflation Factor (VIF)
+## 1. Variance Inflation Factor (VIF)
 
 - Measures how much the variance of a coefficient \( \hat{\beta}_j \) increases due to correlation among predictors.
 - If predictor \( X_j \) is linearly predicted from other variables with \( R_j^2 \), then:
@@ -325,7 +325,7 @@ To ensure that each coefficient in our multinomial model is meaningful, we use:
 - **If VIF > 5 or 10**, the variable is considered multicollinear.
 
 
-### 2. Tolerance
+## 2. Tolerance
 
 - Simply the inverse of VIF:
 
@@ -335,13 +335,13 @@ To ensure that each coefficient in our multinomial model is meaningful, we use:
 
 - **If Tolerance < 0.1**, the variable provides little new information and may cause instability.
 
-### 3. Condition Index (CI)
+## 3. Condition Index (CI)
 - Derived from eigenvalues \( \lambda \) of the scaled \( X^TX \) matrix.
 \[
 \text{CI}_k = \sqrt{\frac{\lambda_{\text{max}}}{\lambda_k}}
 \]
 
-# Why This Matters in Multinomial Logistic Regression
+## Why This Matters in Multinomial Logistic Regression
 
 - In multinomial regression, we estimate \( K-1 \) sets of coefficients \( \beta_i \) for each non-reference category.
 - Each set is estimated using **maximum likelihood**, which assumes stable and independent information from predictors.
@@ -364,44 +364,44 @@ Checking multicollinearity ensures:
 install.packages("car", dependencies = TRUE)  
 library(car)  
 
-# Step 1: Fit model and extract predictor names
+## Step 1: Fit model and extract predictor names
 model_vif <- lm(Sepal.Length ~ Sepal.Width + Petal.Length + Petal.Width, data = iris)  # Fit a linear model with Sepal.Length as the response
 predictors <- c("Sepal.Width", "Petal.Length", "Petal.Width")  # Manually specify the predictor variable names
 data_used <- model_vif$model  # Extract the dataset used in the fitted model
 
-# Step 2: Function to get R² for one predictor
+## Step 2: Function to get R² for one predictor
 get_r2 <- function(var, others, data) {  # Define a function to compute R-squared for one variable regressed on the others
   formula <- as.formula(paste(var, "~", paste(others, collapse = "+")))  # Build the regression formula as a string and convert to a formula
   summary(lm(formula, data))$r.squared  # Run linear model and extract R² value
 }
 
-# Step 3: Compute VIF manually
+## Step 3: Compute VIF manually
 vif_values <- sapply(predictors, function(var) {  # For each predictor, calculate VIF
   others <- setdiff(predictors, var)  # Get all other predictors except the current one
   r2 <- get_r2(var, others, data_used)  # Get R² of current variable predicted by the others
   1 / (1 - r2)  # Apply VIF formula: VIF = 1 / (1 - R²)
 })
 
-# Step 4: Compute Tolerance
+## Step 4: Compute Tolerance
 tolerance_values <- 1 / vif_values  # Tolerance is simply the inverse of VIF
 
-# Step 5: Show results
+## Step 5: Show results
 print(vif_values)  # Print calculated VIF values
 print(tolerance_values)  # Print calculated Tolerance values
 
-# Step 6: Extract the numeric predictors used in the model
+## Step 6: Extract the numeric predictors used in the model
 X <- model_vif$model[, -1]  # Remove the response variable column to isolate predictors
 
-# Step 7: Ensure it's a numeric matrix
+## Step 7: Ensure it's a numeric matrix
 X <- as.matrix(X)  # Convert the predictors to a numeric matrix for matrix operations
 
-# Step 8: Calculate eigenvalues of X-transpose times X
-eig_vals <- eigen(t(X) %*% X)$values  # Compute the eigenvalues of XᵀX (used to assess multicollinearity)
+## Step 8: Calculate eigenvalues of X-transpose times X
+eig_vals <- eigen(t(X) %*% X)$values  # Compute the eigenvalues of XTX (used to assess multicollinearity)
 
-# Step 9: Compute condition index
+## Step 9: Compute condition index
 condition_index <- sqrt(max(eig_vals) / eig_vals)  # Condition index = sqrt(largest eigenvalue / each eigenvalue)
 
-# Step 10: Print the result
+## Step 10: Print the result
 print(condition_index)  
 
 ## Multicollinearity Check Summary 
