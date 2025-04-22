@@ -409,14 +409,14 @@ Tolerance Values
 Condition Index
 - Values: 1.00, 3.97, 26.03
 
--Petal.Length and Petal.Width show strong multicollinearity, which may cause unstable coefficient estimates and reduce the reliability of the regression model.
+- Petal.Length and Petal.Width show strong multicollinearity, which may cause unstable coefficient estimates and reduce the reliability of the regression model.
 
--In this analysis, we used a linear regression model to predict sepal length based on sepal width, petal length, 
--and petal width. Before interpreting the model's coefficients, we checked for multicollinearity 
--which tells us whether the predictor variables are too strongly related to each other.
+- In this analysis, we used a linear regression model to predict sepal length based on sepal width, petal length, 
+- and petal width. Before interpreting the model's coefficients, we checked for multicollinearity 
+- which tells us whether the predictor variables are too strongly related to each other.
 
--This matters because high multicollinearity can make the model unstable and make it hard to determine which variable is actually influencing the response. 
--Our results showed that petal length and petal width are highly correlated, which could distort the model’s interpretations.
+- This matters because high multicollinearity can make the model unstable and make it hard to determine which variable is actually influencing the response. 
+- Our results showed that petal length and petal width are highly correlated, which could distort the model’s interpretations.
 
 
 ## References
