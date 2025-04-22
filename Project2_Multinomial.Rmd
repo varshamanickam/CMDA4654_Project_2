@@ -205,7 +205,6 @@ print(condition_index)
 
 ## Main example
 
-## Multiomial Regression in R
 ```{r include=FALSE}
 
 # Loading necessary libraries and the dataset
