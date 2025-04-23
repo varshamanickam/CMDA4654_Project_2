@@ -84,7 +84,7 @@ $\end{cases}$
 
 As you can see, the odds that a given observation is in category i vs category K is given by $exp(X^T\beta_i)$ and the percentage that a given observation is in category i, $\pi_i$, is $\pi_Kexp(X^T\beta_i)$. 
 
-Since $1 = \sum_{i=1}^{K}\pi_i = \pi_K(1 + \sum_{i=1}^{K-1}exp(X\beta_i))$, $\pi_K = 1/(1 + \sum_{i=1}^{K-1}exp(X^T\beta_i))$. 
+Since $1 = \sum_{i=1}^{K}\pi_i = \pi_K(1 + \sum_{i=1}^{K-1}exp(X\beta_i))$, Then $\pi_K = 1/(1 + \sum_{i=1}^{K-1}exp(X^T\beta_i))$. 
 
 Therefore, the probabilities that an observation is in each category are modeled by the following set of equations:
 $\begin{cases}$
@@ -155,7 +155,9 @@ model_summary$coefficients
 
 Shown above are the coefficients for each predictor variable. Looking at versicolor and Sepal.Length for example, we see that if Sepal Length is increased by one unit, the odds that the flower is a versicolor vs a setosa is decreased by a factor of $exp(-5.458424)=0.004260265$. In other words, the odds will be decreased 99.57397%.
 
-## Why Significance Test in Multinomial Regression?
+## Significance Testing
+
+Why Significance Test in Multinomial Regression?
 
 - Helps determine which predictors are statistically meaningful.
 - Prevents overfitting by identifying unhelpful variables.
@@ -165,7 +167,7 @@ Shown above are the coefficients for each predictor variable. Looking at versico
 
 ## Likelihood Ratio Test
 
-- Compares a full model (with all predictors) to a reduced model (with some predictors removed).
+- Compares a full model (with all predictors) to a reduced or null model (or the null model).
 - **Null hypothesis**: The reduced model fits the data just as well as the full model.
 - **Alternative hypothesis**: The full model fits significantly better than the reduced model.
 - A small *p*-value → removed predictors are important.
