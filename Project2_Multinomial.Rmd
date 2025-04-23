@@ -233,7 +233,10 @@ Here we can see the distribution of the types of faults in our dataset.
 table(steel_faults$Fault_Type)
 ```
 We have a total of 1940 observations of steel plate faults in our dataset.
- 
+
+Multinomial logistic regression is ideal here because:
+- The response is categorical with >2 classes (Pastry, Z_Scratch, etc)
+- The resulting model can help quality control teams identify the likely cause of fault, enabling targeted improvements in production.
 
 ## Building the full model
 
