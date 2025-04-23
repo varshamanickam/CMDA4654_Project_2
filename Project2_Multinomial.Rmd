@@ -82,7 +82,7 @@ $\end{cases}$
 
 ##
 
-As you can see, the odds that a given observation is in category i vs category K is given by $exp(X^T\beta_i)$ and the the percentage that a given observation is in category i, $\pi_i$, is $\pi_Kexp(X^T\beta_i)$. 
+As you can see, the odds that a given observation is in category i vs category K is given by $exp(X^T\beta_i)$ and the percentage that a given observation is in category i, $\pi_i$, is $\pi_Kexp(X^T\beta_i)$. 
 
 Since $1 = \sum_{i=1}^{K}\pi_i = \pi_K(1 + \sum_{i=1}^{K-1}exp(X\beta_i))$, $\pi_K = 1/(1 + \sum_{i=1}^{K-1}exp(X^T\beta_i))$. 
 
@@ -146,12 +146,14 @@ iris$Species <- relevel(iris$Species, ref = "setosa")
 
 model <- multinom(Species ~ ., data = iris, blahblahblah=setosa)
 
+```
+
+```{r, echo=TRUE}
 model_summary <- summary(model)
 model_summary$coefficients
 ```
 
-As you can see, ...
-
+Shown above are the coefficients for each predictor variable. Looking at versicolor and Sepal.Length for example, we see that if Sepal Length is increased by one unit, the odds that the flower is a versicolor vs a setosa is decreased by a factor of $exp(-5.458424)=0.004260265$. In other words, the odds will be decreased 99.57397%.
 
 ## Why Significance Test in Multinomial Regression?
 
